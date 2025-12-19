@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../navigation/route_generator.dart';
 import '../../navigation/routes.dart';
 import '../../services/init_services.dart';

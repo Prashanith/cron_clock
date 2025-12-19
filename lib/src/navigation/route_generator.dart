@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../features/cron/cron_clock.dart';
 import '../features/splash/splash_screen.dart';
 import 'routes.dart';

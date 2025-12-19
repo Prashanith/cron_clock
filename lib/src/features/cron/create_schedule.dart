@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../utils/cron_summary.dart';
 import '../../utils/cron_validators.dart';
 
 class CreateSchedule extends StatefulWidget {
@@ -11,6 +12,7 @@ class CreateSchedule extends StatefulWidget {
 
 class _CreateScheduleState extends State<CreateSchedule> {
   final _formKey = GlobalKey<FormState>();
+  String? cronInfo;
 
   final cronController = TextEditingController();
 
@@ -23,12 +25,27 @@ class _CreateScheduleState extends State<CreateSchedule> {
         child: Column(
           children: <Widget>[
             TextFormField(
-              decoration: InputDecoration(border: OutlineInputBorder( )),
+              decoration: InputDecoration(border: OutlineInputBorder()),
               controller: cronController,
-              validator: validateCronMinute,
+              validator: validateCronExpression,
             ),
             Text(cronController.value.text),
-            FilledButton(onPressed: () => {}, child: Text('Create Schedule')),
+            FilledButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate())
+                  {
+                    cronInfo = describeCron(
+                      cronController.value.text,
+                    );
+
+                  }
+              },
+              child: Text('Create Summary'),
+            ),
+            FilledButton(
+              onPressed: () => {if (_formKey.currentState!.validate()) {}},
+              child: Text('Create Schedule'),
+            ),
           ],
         ),
       ),

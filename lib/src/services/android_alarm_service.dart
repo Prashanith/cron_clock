@@ -5,9 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AndroidAlarmService {
   final Future<SharedPreferences> secureStore = SharedPreferences.getInstance();
 
-  void _checkExactAlarmPermission() async {
+  Future<bool> _checkExactAlarmPermission() async {
     final currentStatus = await Permission.scheduleExactAlarm.status;
-    if (currentStatus.isDenied) {}
+    return currentStatus.isGranted;
   }
 
   static void init() async {

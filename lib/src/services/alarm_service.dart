@@ -1,179 +1,187 @@
-import 'dart:developer' as developer;
+import 'dart:async';
 import 'dart:isolate';
-import 'dart:math';
-import 'dart:ui';
-
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:audioplayers/audioplayers.dart';
 
-/// The [SharedPreferences] key to access the alarm fire count.
-const String countKey = 'count';
+import 'alarm_engine.dart';
 
-/// The name associated with the UI isolate's [SendPort].
-const String isolateName = 'isolate';
-
-/// A port used to communicate from a background isolate to the UI isolate.
-ReceivePort port = ReceivePort();
-
-/// Global [SharedPreferences] object.
-SharedPreferences? prefs;
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Register the UI isolate's SendPort to allow for communication from the
-  // background isolate.
-  IsolateNameServer.registerPortWithName(port.sendPort, isolateName);
-  prefs = await SharedPreferences.getInstance();
-  if (!prefs!.containsKey(countKey)) {
-    await prefs!.setInt(countKey, 0);
-  }
-
-  runApp(const AlarmManagerExampleApp());
+void alarmCallback(int id) async {
+  await AlarmEngine.instance.showNotificationAndPlaySound(id);
+  await AlarmEngine.instance.rescheduleNextForId(id);
 }
 
-/// Example app for Espresso plugin.
-class AlarmManagerExampleApp extends StatelessWidget {
-  const AlarmManagerExampleApp({super.key});
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await AndroidAlarmManager.initialize();
+  await AlarmEngine.instance.initialize();
 
-  // This widget is the root of your application.
+  runApp(const MyApp());
+}
+
+/// Simple app UI + controller
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: const Color(0x9f4376f8),
-      ),
-      home: const _AlarmHomePage(),
+      title: 'Cron Alarm Example',
+      theme: ThemeData(primarySwatch: Colors.indigo),
+      home: const CronAlarmPage(),
     );
   }
 }
 
-class _AlarmHomePage extends StatefulWidget {
-  const _AlarmHomePage();
-
+class CronAlarmPage extends StatefulWidget {
+  const CronAlarmPage({super.key});
   @override
-  _AlarmHomePageState createState() => _AlarmHomePageState();
+  State<CronAlarmPage> createState() => _CronAlarmPageState();
 }
 
-class _AlarmHomePageState extends State<_AlarmHomePage> {
-  int _counter = 0;
-  PermissionStatus _exactAlarmPermissionStatus = PermissionStatus.granted;
+class _CronAlarmPageState extends State<CronAlarmPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _cronController = TextEditingController(
+    text: '*/1 * * * *',
+  ); // default every minute
+  final _labelController = TextEditingController(text: 'My Cron Alarm');
+
+  // Keeps mapping: alarmId -> cron expression
+  // In a production app persist this mapping (shared_preferences / database) so reboot/reschedule works.
+  Map<int, String> scheduledCrons = {};
+
+  int nextId = 1;
 
   @override
-  void initState() {
-    super.initState();
-    AndroidAlarmManager.initialize();
-    _checkExactAlarmPermission();
-
-    // Register for events from the background isolate. These messages will
-    // always coincide with an alarm firing.
-    port.listen((_) async => await _incrementCounter());
+  void dispose() {
+    _cronController.dispose();
+    _labelController.dispose();
+    super.dispose();
   }
 
-  void _checkExactAlarmPermission() async {
-    final currentStatus = await Permission.scheduleExactAlarm.status;
-    if (!mounted) return;
-    setState(() {
-      _exactAlarmPermissionStatus = currentStatus;
-    });
+  Future<void> _scheduleCron() async {
+    final cron = _cronController.text.trim();
+    if (cron.isEmpty) return;
+
+    // For demo we do minimal validation here
+    final next = CronUtils.computeNextRun(cron);
+    if (next == null) {
+      _showSnack(
+        'Unsupported cron format (supported: "*/N * * * *" or "M H * * *" or simple lists/ranges).',
+      );
+      return;
+    }
+
+    final id = nextId++;
+    // Save mapping in-memory. Persist in real app.
+    scheduledCrons[id] = cron;
+
+    // Store the label for notifications
+    AlarmEngine.instance.labels[id] = _labelController.text.trim().isEmpty
+        ? 'Alarm'
+        : _labelController.text.trim();
+
+    // Schedule one-shot at 'next'
+    await AndroidAlarmManager.oneShotAt(
+      next,
+      id,
+      alarmCallback,
+      wakeup: true,
+      exact: true,
+      rescheduleOnReboot: true,
+    );
+
+    _showSnack('Scheduled alarm #$id at $next for cron: $cron');
+    setState(() {});
   }
 
-  Future<void> _incrementCounter() async {
-    developer.log('Increment counter!');
-    // Ensure we've loaded the updated count from the background isolate.
-    await prefs?.reload();
-
-    setState(() {
-      _counter++;
-    });
+  Future<void> _cancelAll() async {
+    for (final id in scheduledCrons.keys) {
+      await AndroidAlarmManager.cancel(id);
+    }
+    scheduledCrons.clear();
+    AlarmEngine.instance.labels.clear();
+    _showSnack('Canceled all alarms');
+    setState(() {});
   }
 
-  // The background
-  static SendPort? uiSendPort;
-
-  // The callback for our alarm
-  @pragma('vm:entry-point')
-  static Future<void> callback() async {
-    developer.log('Alarm fired!');
-    // Get the previous cached count and increment it.
-    final prefs = await SharedPreferences.getInstance();
-    final currentCount = prefs.getInt(countKey) ?? 0;
-    await prefs.setInt(countKey, currentCount + 1);
-
-    // This will be null if we're running in the background.
-    uiSendPort ??= IsolateNameServer.lookupPortByName(isolateName);
-    uiSendPort?.send(null);
+  void _showSnack(String text) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   @override
   Widget build(BuildContext context) {
-    final textStyle = Theme.of(context).textTheme.headlineMedium;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Android alarm manager plus example'),
-        elevation: 4,
-      ),
-      body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Spacer(),
-            Text(
-              'Alarms fired during this run of the app: $_counter',
-              style: textStyle,
-              textAlign: TextAlign.center,
-            ),
-            if (_exactAlarmPermissionStatus.isDenied)
-              Text(
-                'SCHEDULE_EXACT_ALARM is denied\n\nAlarms scheduling is not available',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium,
-              )
-            else
-              Text(
-                'SCHEDULE_EXACT_ALARM is granted\n\nAlarms scheduling is available',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium,
+      appBar: AppBar(title: const Text('Cron Alarm Example')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _cronController,
+                decoration: const InputDecoration(
+                  labelText: 'Cron expression (minute hour day month weekday)',
+                  hintText: 'Examples: "*/5 * * * *" or "30 7 * * *"',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _exactAlarmPermissionStatus.isDenied
-                  ? () async {
-                      await Permission.scheduleExactAlarm
-                          .onGrantedCallback(
-                            () => setState(() {
-                              _exactAlarmPermissionStatus =
-                                  PermissionStatus.granted;
-                            }),
-                          )
-                          .request();
-                    }
-                  : null,
-              child: const Text('Request exact alarm permission'),
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _exactAlarmPermissionStatus.isGranted
-                  ? () async {
-                      await AndroidAlarmManager.oneShot(
-                        const Duration(seconds: 5),
-                        // Ensure we have a unique alarm ID.
-                        Random().nextInt(pow(2, 31) as int),
-                        callback,
-                        exact: true,
-                        wakeup: true,
-                      );
-                    }
-                  : null,
-              child: const Text('Schedule OneShot Alarm'),
-            ),
-            const Spacer(),
-          ],
+              const SizedBox(height: 8),
+              TextFormField(
+                controller: _labelController,
+                decoration: const InputDecoration(
+                  labelText: 'Alarm label',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _scheduleCron,
+                    icon: const Icon(Icons.schedule),
+                    label: const Text('Schedule'),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton.icon(
+                    onPressed: _cancelAll,
+                    icon: const Icon(Icons.cancel),
+                    label: const Text('Cancel All'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text('Scheduled (in-memory)'),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView(
+                  children: scheduledCrons.entries
+                      .map(
+                        (e) => ListTile(
+                          title: Text('ID ${e.key} — ${e.value}'),
+                          subtitle: Text(
+                            'Label: ${AlarmEngine.instance.labels[e.key] ?? ''}',
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () async {
+                              await AndroidAlarmManager.cancel(e.key);
+                              scheduledCrons.remove(e.key);
+                              AlarmEngine.instance.labels.remove(e.key);
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
