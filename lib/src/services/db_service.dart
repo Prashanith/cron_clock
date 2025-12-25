@@ -21,6 +21,6 @@ class DbService {
           ''');
       },
     );
-    //   await ScheduledTaskService.createTask(ScheduledTask(title: 'Cron', description: "The Nerd's Clock", cron: '* * * * *'));
+    await ScheduledTaskService.createTask(ScheduledTask(title: 'Cron', description: "The Nerd's Clock", cron: '* * * * *'));
   }
 }

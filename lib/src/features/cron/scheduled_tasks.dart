@@ -42,7 +42,7 @@ class _ScheduledTasksState extends State<ScheduledTasks> {
           itemBuilder: (context, index) {
             final task = tasks[index];
             return ExpansionTile(
-              title: Text(task.title),
+              title: Text(task.id),
               subtitle: Text(task.description),
               trailing: IconButton(
                 icon: const Icon(Icons.delete),
