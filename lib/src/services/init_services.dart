@@ -17,19 +17,18 @@ class ServiceInitializer {
   static Future<void> initializeServices() async {
     ReceivePort port = ReceivePort();
 
-    IsolateNameServer.registerPortWithName(
-      port.sendPort,
-      'isolate',
-    );
+    IsolateNameServer.registerPortWithName(port.sendPort, 'isolate');
     AndroidAlarmService.init();
     locator.registerSingleton<DbService>(DbService());
     locator.registerSingleton<LocalStorage>(LocalStorage());
     locator.registerSingleton<RouteGenerator>(RouteGenerator());
     locator.registerSingleton<PermissionService>(PermissionService());
     locator.registerSingleton<AndroidAlarmService>(AndroidAlarmService());
-    locator.registerSingleton<FlutterLocalNotificationsPlugin>(FlutterLocalNotificationsPlugin());
+    locator.registerSingleton<FlutterLocalNotificationsPlugin>(
+      FlutterLocalNotificationsPlugin(),
+    );
 
-    postInitializationServices();
+    await postInitializationServices();
   }
 
   static Future<void> postInitializationServices() async {

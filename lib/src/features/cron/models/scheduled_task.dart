@@ -1,5 +1,5 @@
 class ScheduledTask {
-  late String id;
+  String id = '';
   final String title;
   final String description;
   final String cron;
@@ -19,6 +19,6 @@ class ScheduledTask {
   }
 
   Map<String, dynamic> toMap() {
-    return {'id': id, 'title': title, 'description': description, 'cron': cron};
+    return {'title': title, 'description': description, 'cron': cron};
   }
 }

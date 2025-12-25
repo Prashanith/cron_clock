@@ -32,13 +32,9 @@ class _CreateScheduleState extends State<CreateSchedule> {
             Text(cronController.value.text),
             FilledButton(
               onPressed: () {
-                if (_formKey.currentState!.validate())
-                  {
-                    cronInfo = describeCron(
-                      cronController.value.text,
-                    );
-
-                  }
+                if (_formKey.currentState!.validate()) {
+                  cronInfo = describeCron(cronController.value.text);
+                }
               },
               child: Text('Create Summary'),
             ),

@@ -15,8 +15,10 @@ class ScheduledTaskService {
   }
 
   static Future<List<ScheduledTask>> getAllTasks() async {
-    final List<Map<String, dynamic>> result =
-    await db.query('cron', orderBy: 'id');
+    final List<Map<String, dynamic>> result = await db.query(
+      'cron',
+      orderBy: 'id',
+    );
 
     return result.map((e) => ScheduledTask.fromMap(e)).toList();
   }
@@ -43,10 +45,6 @@ class ScheduledTaskService {
   }
 
   static Future<int> deleteTaskById(String id) async {
-    return await db.delete(
-      'cron',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return await db.delete('cron', where: 'id = ?', whereArgs: [id]);
   }
 }

@@ -11,19 +11,16 @@ class DbService {
       'cron_clock.db',
       version: 1,
       onCreate: (Database db, int version) async {
-        await db.execute(
-          '''
+        await db.execute('''
           CREATE TABLE cron (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
+            title TEXT,
             description TEXT,
             cron TEXT          
           )
-          ''',
-        );
+          ''');
       },
     );
-    await ScheduledTaskService.createTask(ScheduledTask(title: 'Cron', description: "The Nerd's Clock", cron: '* * * * *'));
-    
+    //   await ScheduledTaskService.createTask(ScheduledTask(title: 'Cron', description: "The Nerd's Clock", cron: '* * * * *'));
   }
 }

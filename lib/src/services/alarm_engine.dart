@@ -6,7 +6,7 @@ class AlarmEngine {
   static final AlarmEngine instance = AlarmEngine._private();
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
   final AudioPlayer audioPlayer = AudioPlayer();
 
   /// mapping id -> label for notification
