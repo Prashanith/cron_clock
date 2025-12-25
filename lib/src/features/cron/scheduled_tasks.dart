@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../utils/cron_summary.dart';
 import 'models/scheduled_task.dart';
 import 'services/schedule_task_service.dart';
 
@@ -40,9 +41,9 @@ class _ScheduledTasksState extends State<ScheduledTasks> {
           itemCount: tasks.length,
           itemBuilder: (context, index) {
             final task = tasks[index];
-            return ListTile(
+            return ExpansionTile(
               title: Text(task.title),
-              subtitle: Text(task.cron),
+              subtitle: Text(task.description),
               trailing: IconButton(
                 icon: const Icon(Icons.delete),
                 onPressed: () async {
@@ -51,6 +52,7 @@ class _ScheduledTasksState extends State<ScheduledTasks> {
                   (context as Element).markNeedsBuild();
                 },
               ),
+              children: [Text(task.cron), Text(describeCron(task.cron))],
             );
           },
         );

@@ -19,7 +19,10 @@ class CronClock extends StatelessWidget {
       navigatorKey: locator.get<RouteGenerator>().navigator,
       onGenerateRoute: RouteGenerator.generateRoute,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+            brightness:Brightness.dark,
+            surface:Colors.blueGrey.shade900,
+            seedColor: Colors.deepPurple.shade900),
       ),
     );
   }
