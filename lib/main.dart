@@ -5,7 +5,7 @@ import 'src/services/init_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  ServiceInitializer.initializeServices();
+  await ServiceInitializer.initializeServices();
   runApp(const CronClock());
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../features/cron/create_schedule.dart';
+import '../features/cron/scheduled_tasks.dart';
 
 class BottomNavScaffold extends StatefulWidget {
   const BottomNavScaffold({super.key});
@@ -16,6 +17,8 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
     switch (i) {
       case 0:
         return CreateSchedule();
+      case 1:
+        return ScheduledTasks();
       default:
         return Center();
     }

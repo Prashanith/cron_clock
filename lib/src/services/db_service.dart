@@ -1,0 +1,29 @@
+import 'package:sqflite/sqflite.dart';
+
+import '../features/cron/models/scheduled_task.dart';
+import '../features/cron/services/schedule_task_service.dart';
+
+class DbService {
+  late Database db;
+
+  Future<void> createDatabase() async {
+    db = await openDatabase(
+      'cron_clock.db',
+      version: 1,
+      onCreate: (Database db, int version) async {
+        await db.execute(
+          '''
+          CREATE TABLE cron (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            description TEXT,
+            cron TEXT          
+          )
+          ''',
+        );
+      },
+    );
+    await ScheduledTaskService.createTask(ScheduledTask(title: 'Cron', description: "The Nerd's Clock", cron: '* * * * *'));
+    
+  }
+}
