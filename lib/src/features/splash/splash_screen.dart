@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../navigation/route_generator.dart';
 import '../../navigation/routes.dart';
 import '../../services/init_services.dart';
@@ -24,7 +25,11 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [Logo()],
+          children: [
+            Logo(),
+            Text('Cron Clock', style: TextStyle(fontSize: 16)),
+            Text("The Nerd's Clock", style: TextStyle(fontSize: 10)),
+          ],
         ),
       ),
     );

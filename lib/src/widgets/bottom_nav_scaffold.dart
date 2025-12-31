@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../features/cron/create_schedule.dart';
 import '../features/cron/scheduled_tasks.dart';
+import 'logo.dart';
 
 class BottomNavScaffold extends StatefulWidget {
   const BottomNavScaffold({super.key});
@@ -40,7 +41,10 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(getTitle(currentIndex)), leading: null),
+      appBar: AppBar(
+        title: Text(getTitle(currentIndex)),
+        leading: Transform.scale(scale: 0.7, child: Logo()),
+      ),
       body: getWidget(currentIndex),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
