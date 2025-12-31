@@ -15,6 +15,8 @@ class CreateSchedule extends StatefulWidget {
 class _CreateScheduleState extends State<CreateSchedule> {
   final _formKey = GlobalKey<FormState>();
   String? cronInfo;
+  bool isLoading = false;
+  String response = '';
 
   final cronController = TextEditingController();
   final titleController = TextEditingController();
@@ -80,17 +82,62 @@ class _CreateScheduleState extends State<CreateSchedule> {
                 Expanded(
                   flex: 10,
                   child: FilledButton(
-                    onPressed: () async => {
-                      if (_formKey.currentState!.validate())
-                        {
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) {
+                            return AlertDialog(
+                              content: SizedBox(
+                                width: MediaQuery.widthOf(context) * 0.9,
+                                height: MediaQuery.heightOf(context) * 0.33,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    if (isLoading) CircularProgressIndicator(),
+                                    if (response != '') Text(response),
+                                  ],
+                                ),
+                              ),
+                              actions: [
+                                if (!isLoading)
+                                  FilledButton(
+                                    onPressed: () => Navigator.of(
+                                      context,
+                                      rootNavigator: true,
+                                    ).pop(),
+                                    child: Text('OK'),
+                                  ),
+                              ],
+                            );
+                          },
+                        );
+                        try {
+                          setState(() {
+                            isLoading = true;
+                          });
                           await ScheduledTaskService.createTask(
                             ScheduledTask(
-                              title: 'Cron',
-                              description: "The Nerd's Clock",
-                              cron: '* * * * *',
+                              title: titleController.text,
+                              description: descriptionController.text,
+                              cron: cronController.text,
                             ),
-                          ),
-                        },
+                          );
+                          setState(() {
+                            response = 'Schedule Created';
+                          });
+                        } catch (e) {
+                          setState(() {
+                            response = 'Error Occurred';
+                          });
+                        } finally {
+                          setState(() {
+                            isLoading = false;
+                          });
+                        }
+                      }
                     },
                     child: Text('Create Schedule'),
                   ),
