@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../services/init_services.dart';
 import '../../utils/cron_summary.dart';
 import '../../utils/cron_validators.dart';
 import 'models/scheduled_task.dart';
 import 'services/schedule_task_service.dart';
+import 'services/scheduling_service.dart';
 
 class CreateSchedule extends StatefulWidget {
   const CreateSchedule({super.key});
@@ -133,16 +135,17 @@ class _CreateScheduleState extends State<CreateSchedule> {
                           setState(() {
                             isLoading = true;
                           });
-                          await ScheduledTaskService.createTask(
-                            ScheduledTask(
-                              title: titleController.text,
-                              description: descriptionController.text,
-                              cron: cronController.text,
-                            ),
+                          var task = ScheduledTask(
+                            title: titleController.text,
+                            description: descriptionController.text,
+                            cron: cronController.text,
                           );
+                          var id = await ScheduledTaskService.createTask(task);
                           setState(() {
                             response = 'Schedule Created';
                           });
+                          var service = locator<SchedulingService>();
+                          service.scheduleCron(id);
                         } catch (e) {
                           setState(() {
                             response = 'Error Occurred';

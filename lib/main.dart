@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 import 'src/navigation/route_generator.dart';
 import 'src/navigation/routes.dart';
@@ -6,6 +10,14 @@ import 'src/services/init_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
+  const channel = MethodChannel('exact_alarm_permission');
+
+  if (Platform.isAndroid) {
+    try {
+      await channel.invokeMethod('requestExactAlarm');
+    } catch (_) {}
+  }
   await ServiceInitializer.initializeServices();
   runApp(const CronClock());
 }

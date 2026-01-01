@@ -13,7 +13,10 @@ class ScheduledTasks extends StatefulWidget {
 
 class _ScheduledTasksState extends State<ScheduledTasks> {
   late List<ScheduledTask> scheduledTasks = [];
-  Future<List<ScheduledTask>> _future = Future.delayed(Duration(seconds: 0), ()=>[]);
+  Future<List<ScheduledTask>> _future = Future.delayed(
+    Duration(seconds: 0),
+    () => [],
+  );
 
   String getText(CronDescriptionResult? result) {
     if (result != null) {

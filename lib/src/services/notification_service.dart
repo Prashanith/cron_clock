@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import 'init_services.dart';
+
 class NotificationService {
   NotificationService._();
 
   static final NotificationService instance = NotificationService._();
 
   final FlutterLocalNotificationsPlugin _plugin =
-      FlutterLocalNotificationsPlugin();
+      locator<FlutterLocalNotificationsPlugin>();
 
   static const AndroidNotificationChannel _channel = AndroidNotificationChannel(
     'alarm_channel',
@@ -16,18 +18,18 @@ class NotificationService {
     description: 'Notifications for alarms and reminders',
     importance: Importance.max,
     playSound: true,
+    bypassDnd: true,
+    enableVibration: true,
+    enableLights: true,
   );
 
   Future<void> init() async {
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-
     const initSettings = InitializationSettings(android: androidInit);
-
     await _plugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _onNotificationTap,
     );
-
     await _plugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
@@ -67,7 +69,6 @@ class NotificationService {
     await _plugin.cancelAll();
   }
 
-  /// Notification details
   NotificationDetails _notificationDetails() {
     return NotificationDetails(
       android: AndroidNotificationDetails(

@@ -7,12 +7,13 @@ import '../models/scheduled_task.dart';
 class ScheduledTaskService {
   static Database db = locator<DbService>().db;
 
-  static Future<void> createTask(ScheduledTask task) async {
-    await db.insert(
+  static Future<int> createTask(ScheduledTask task) async {
+    var id = await db.insert(
       'cron',
       task.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    return id;
   }
 
   static Future<List<ScheduledTask>> getAllTasks() async {

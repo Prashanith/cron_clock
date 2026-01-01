@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 
+import '../features/cron/services/scheduling_service.dart';
 import '../navigation/route_generator.dart';
 import 'android_alarm_service.dart';
 import 'db_service.dart';
@@ -23,7 +24,7 @@ class ServiceInitializer {
     locator.registerSingleton<LocalStorage>(LocalStorage());
     locator.registerSingleton<RouteGenerator>(RouteGenerator());
     locator.registerSingleton<PermissionService>(PermissionService());
-    locator.registerSingleton<AndroidAlarmService>(AndroidAlarmService());
+    locator.registerSingleton<SchedulingService>(SchedulingService());
     locator.registerSingleton<FlutterLocalNotificationsPlugin>(
       FlutterLocalNotificationsPlugin(),
     );
@@ -35,9 +36,6 @@ class ServiceInitializer {
     final notificationsPlugin = locator<FlutterLocalNotificationsPlugin>();
     final db = locator<DbService>();
     await db.createDatabase();
-    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const initSettings = InitializationSettings(android: androidInit);
-    await notificationsPlugin.initialize(initSettings);
     await NotificationService.instance.init();
   }
 }
