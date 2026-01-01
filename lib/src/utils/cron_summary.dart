@@ -39,10 +39,7 @@ CronDescriptionResult describeCron(String cron) {
     monthText,
   ].where((e) => e.isNotEmpty).join(' ').trim();
 
-  return CronDescriptionResult(
-    inputText: input,
-    outputMessage: text,
-  );
+  return CronDescriptionResult(inputText: input, outputMessage: text);
 }
 
 String _timeText(String minute, String hour) {
@@ -113,10 +110,7 @@ String _weekdayText(String value) {
   }
 
   if (value.contains(',')) {
-    return value
-        .split(',')
-        .map((e) => weekdayNames[int.parse(e)])
-        .join(', ');
+    return value.split(',').map((e) => weekdayNames[int.parse(e)]).join(', ');
   }
 
   if (_isNum(value)) {

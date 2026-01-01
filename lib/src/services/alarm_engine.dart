@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class AlarmEngine {
   AlarmEngine._private();
+
   static final AlarmEngine instance = AlarmEngine._private();
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =

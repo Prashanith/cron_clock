@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'dart:isolate';
-import 'package:flutter/material.dart';
+
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
 
 import 'alarm_engine.dart';
 
@@ -23,6 +21,7 @@ void main() async {
 /// Simple app UI + controller
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -35,6 +34,7 @@ class MyApp extends StatelessWidget {
 
 class CronAlarmPage extends StatefulWidget {
   const CronAlarmPage({super.key});
+
   @override
   State<CronAlarmPage> createState() => _CronAlarmPageState();
 }

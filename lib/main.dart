@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'src/navigation/route_generator.dart';
 import 'src/navigation/routes.dart';
 import 'src/services/init_services.dart';
@@ -11,6 +12,7 @@ void main() async {
 
 class CronClock extends StatelessWidget {
   const CronClock({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
