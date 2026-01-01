@@ -13,6 +13,7 @@ class ScheduledTasks extends StatefulWidget {
 
 class _ScheduledTasksState extends State<ScheduledTasks> {
   late List<ScheduledTask> scheduledTasks = [];
+  Future<List<ScheduledTask>> _future = Future.delayed(Duration(seconds: 0), ()=>[]);
 
   String getText(CronDescriptionResult? result) {
     if (result != null) {
@@ -26,15 +27,27 @@ class _ScheduledTasksState extends State<ScheduledTasks> {
     return '';
   }
 
+  Future<List<ScheduledTask>> fetchData() async {
+    var list = await ScheduledTaskService.getAllTasks();
+    return list;
+  }
+
+  void _reload() {
+    setState(() {
+      _future = fetchData();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _future = fetchData();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<ScheduledTask>>(
-      future: ScheduledTaskService.getAllTasks(),
+      future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -55,15 +68,17 @@ class _ScheduledTasksState extends State<ScheduledTasks> {
           itemBuilder: (context, index) {
             final task = tasks[index];
             return ExpansionTile(
-              key: Key(task.id.toString()),
               title: Text(task.title),
               subtitle: Text(task.description),
               trailing: IconButton(
                 icon: const Icon(Icons.delete),
                 onPressed: () async {
-                  await ScheduledTaskService.deleteTaskById(task.id);
-                  // 🔄 Rebuild UI
-                  (context as Element).markNeedsBuild();
+                  var data = await ScheduledTaskService.deleteTaskById(task.id);
+                  if (data == 1) {
+                    setState(() {
+                      _future = fetchData();
+                    });
+                  }
                 },
               ),
               children: [

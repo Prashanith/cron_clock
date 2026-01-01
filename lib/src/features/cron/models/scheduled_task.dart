@@ -11,11 +11,14 @@ class ScheduledTask {
   });
 
   factory ScheduledTask.fromMap(Map<String, dynamic> data) {
-    return ScheduledTask(
+    var id = data['id'].toString() ?? '';
+    var task =  ScheduledTask(
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       cron: data['cron'] ?? '',
     );
+    task.id = id;
+    return task;
   }
 
   Map<String, dynamic> toMap() {

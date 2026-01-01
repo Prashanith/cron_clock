@@ -46,6 +46,7 @@ class ScheduledTaskService {
   }
 
   static Future<int> deleteTaskById(String id) async {
+    print(id);
     return await db.delete('cron', where: 'id = ?', whereArgs: [id]);
   }
 }
