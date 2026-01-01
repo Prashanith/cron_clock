@@ -13,6 +13,18 @@ class ScheduledTasks extends StatefulWidget {
 class _ScheduledTasksState extends State<ScheduledTasks> {
   late List<ScheduledTask> scheduledTasks = [];
 
+  String getText(CronDescriptionResult? result) {
+    if (result != null) {
+      if (result.errorMessage != null) {
+        return result.errorMessage!;
+      }
+      if (result.outputMessage != null) {
+        return result.outputMessage!;
+      }
+    }
+    return '';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -52,7 +64,7 @@ class _ScheduledTasksState extends State<ScheduledTasks> {
                   (context as Element).markNeedsBuild();
                 },
               ),
-              children: [Text(task.cron), Text(describeCron(task.cron))],
+              children: [Text(task.cron), Text(getText(describeCron(task.cron)))],
             );
           },
         );

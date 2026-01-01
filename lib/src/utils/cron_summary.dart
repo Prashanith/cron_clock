@@ -1,26 +1,136 @@
-String describeCron(String cron) {
-  final parts = cron.trim().split(RegExp(r'\s+'));
-  if (parts.length != 5) {
-    return 'Invalid cron: must contain 5 parts';
-  }
+class CronDescriptionResult {
+  final String inputText;
+  final String? outputMessage;
+  final String? errorMessage;
 
-  final minute = _describePart(parts[0], 'minute', 0, 59);
-  final hour = _describePart(parts[1], 'hour', 0, 23);
-  final day = _describePart(parts[2], 'day of month', 1, 31);
-  final month = _describePart(parts[3], 'month', 1, 12, monthNames);
-  final weekday = _describePart(parts[4], 'weekday', 0, 6, weekdayNames);
+  const CronDescriptionResult({
+    required this.inputText,
+    this.outputMessage,
+    this.errorMessage,
+  });
 
-  return '''
-Cron Expression Description:
-- Runs at: $minute
-- At hour: $hour
-- On day: $day
-- In month: $month
-- On weekday: $weekday
-''';
+  bool get isValid => errorMessage == null;
 }
 
-final monthNames = {
+CronDescriptionResult describeCron(String cron) {
+  final input = cron.trim();
+  final parts = input.split(RegExp(r'\s+'));
+
+  if (parts.length != 5) {
+    return CronDescriptionResult(
+      inputText: input,
+      errorMessage: 'Cron expression must contain exactly 5 fields',
+    );
+  }
+
+  final minute = parts[0];
+  final hour = parts[1];
+  final day = parts[2];
+  final month = parts[3];
+  final weekday = parts[4];
+
+  final timeText = _timeText(minute, hour);
+  final dayText = _dayText(day, weekday);
+  final monthText = _monthText(month);
+
+  final text = [
+    timeText,
+    dayText,
+    monthText,
+  ].where((e) => e.isNotEmpty).join(' ').trim();
+
+  return CronDescriptionResult(
+    inputText: input,
+    outputMessage: text,
+  );
+}
+
+String _timeText(String minute, String hour) {
+  if (_isNum(minute) && _isNum(hour)) {
+    return 'At ${_pad(hour)}:${_pad(minute)}';
+  }
+
+  if (minute == '*' && hour == '*') {
+    return 'At every minute';
+  }
+
+  if (minute.startsWith('*/') && hour == '*') {
+    return 'Every ${minute.substring(2)} minutes';
+  }
+
+  if (hour.startsWith('*/') && minute == '*') {
+    return 'Every minute every ${hour.substring(2)} hours';
+  }
+
+  if (minute == '*' && _isNum(hour)) {
+    return 'At every minute during hour ${_pad(hour)}';
+  }
+
+  if (_isNum(minute) && hour == '*') {
+    return 'At minute ${_pad(minute)} of every hour';
+  }
+
+  return 'At scheduled time';
+}
+
+String _dayText(String day, String weekday) {
+  if (day == '*' && weekday == '*') {
+    return '';
+  }
+
+  if (weekday != '*') {
+    return 'on ${_weekdayText(weekday)}';
+  }
+
+  if (day != '*') {
+    return 'on day $day';
+  }
+
+  return '';
+}
+
+String _monthText(String month) {
+  if (month == '*') {
+    return '';
+  }
+
+  if (month.startsWith('*/')) {
+    return 'every ${month.substring(2)} months';
+  }
+
+  if (_isNum(month)) {
+    final m = int.parse(month);
+    return 'in ${monthNames[m] ?? 'month $m'}';
+  }
+
+  return '';
+}
+
+String _weekdayText(String value) {
+  if (value.contains('-')) {
+    final p = value.split('-');
+    return '${weekdayNames[int.parse(p[0])]} to ${weekdayNames[int.parse(p[1])]}';
+  }
+
+  if (value.contains(',')) {
+    return value
+        .split(',')
+        .map((e) => weekdayNames[int.parse(e)])
+        .join(', ');
+  }
+
+  if (_isNum(value)) {
+    return weekdayNames[int.parse(value)]!;
+  }
+
+  return value;
+}
+
+bool _isNum(String s) => int.tryParse(s) != null;
+
+String _pad(String s) => s.padLeft(2, '0');
+
+const Map<int, String> monthNames = {
   1: 'January',
   2: 'February',
   3: 'March',
@@ -35,7 +145,7 @@ final monthNames = {
   12: 'December',
 };
 
-final weekdayNames = {
+const Map<int, String> weekdayNames = {
   0: 'Sunday',
   1: 'Monday',
   2: 'Tuesday',
@@ -44,51 +154,3 @@ final weekdayNames = {
   5: 'Friday',
   6: 'Saturday',
 };
-
-String _describePart(
-  String value,
-  String label,
-  int min,
-  int max, [
-  Map<int, String>? names,
-]) {
-  value = value.trim();
-
-  if (value == '*') return 'every $label';
-
-  // Step */5 or 10/5 or 5-10/2
-  if (value.contains('/')) {
-    final parts = value.split('/');
-    final base = parts[0];
-    final step = parts[1];
-    if (base == '*') return 'every $step $label(s)';
-    return 'every $step $label(s) starting at $base';
-  }
-
-  // Range 5-20
-  if (value.contains('-')) {
-    final r = value.split('-');
-    final start = int.parse(r[0]);
-    final end = int.parse(r[1]);
-    return '${labelsFromNames(start, names)} to ${labelsFromNames(end, names)}';
-  }
-
-  // List 1,5,10
-  if (value.contains(',')) {
-    final items = value.split(',');
-    return items.map((e) => labelsFromNames(int.parse(e), names)).join(', ');
-  }
-
-  // single numeric or name
-  final n = int.tryParse(value);
-  if (n != null) return labelsFromNames(n, names);
-
-  return value; // fallback text
-}
-
-String labelsFromNames(int n, Map<int, String>? names) {
-  if (names != null && names.containsKey(n)) {
-    return names[n]!;
-  }
-  return n.toString();
-}

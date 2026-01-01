@@ -1,5 +1,4 @@
 import 'package:sqflite/sqflite.dart';
-
 import '../features/cron/models/scheduled_task.dart';
 import '../features/cron/services/schedule_task_service.dart';
 
@@ -20,13 +19,6 @@ class DbService {
           )
           ''');
       },
-    );
-    await ScheduledTaskService.createTask(
-      ScheduledTask(
-        title: 'Cron',
-        description: "The Nerd's Clock",
-        cron: '* * * * *',
-      ),
     );
   }
 }

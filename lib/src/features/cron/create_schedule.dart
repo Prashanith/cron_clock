@@ -14,13 +14,25 @@ class CreateSchedule extends StatefulWidget {
 
 class _CreateScheduleState extends State<CreateSchedule> {
   final _formKey = GlobalKey<FormState>();
-  String? cronInfo;
+  CronDescriptionResult? cronInfo;
   bool isLoading = false;
   String response = '';
 
   final cronController = TextEditingController();
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
+
+  String getText(CronDescriptionResult? result) {
+    if (result != null) {
+      if (result.errorMessage != null) {
+        return result.errorMessage!;
+      }
+      if (result.outputMessage != null) {
+        return result.outputMessage!;
+      }
+    }
+    return '';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +73,7 @@ class _CreateScheduleState extends State<CreateSchedule> {
               validator: validateCronExpression,
             ),
             SizedBox(height: 20),
-            ?cronInfo != null ? Text(cronInfo!) : null,
+            ?cronInfo != null ? Text(getText(cronInfo)) : null,
             SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -72,7 +84,10 @@ class _CreateScheduleState extends State<CreateSchedule> {
                   child: FilledButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        cronInfo = describeCron(cronController.value.text);
+                        var info = describeCron(cronController.value.text);
+                        setState(() {
+                          cronInfo = info;
+                        });
                       }
                     },
                     child: Text('Create Summary'),
