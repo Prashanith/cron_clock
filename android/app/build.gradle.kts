@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.cronclock.dev007.cron_clock"
+        applicationId = "com.cronclock.example.cron_clock"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

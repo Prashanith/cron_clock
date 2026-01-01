@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.cronclock.example.cron_clock">
     <application
         android:label="cron_clock"
         android:name="${applicationName}"
