@@ -17,9 +17,8 @@ final locator = GetIt.instance;
 class ServiceInitializer {
   static Future<void> initializeServices() async {
     ReceivePort port = ReceivePort();
-
     IsolateNameServer.registerPortWithName(port.sendPort, 'isolate');
-    AndroidAlarmService.init();
+
     locator.registerSingleton<DbService>(DbService());
     locator.registerSingleton<LocalStorage>(LocalStorage());
     locator.registerSingleton<RouteGenerator>(RouteGenerator());
@@ -33,7 +32,7 @@ class ServiceInitializer {
   }
 
   static Future<void> postInitializationServices() async {
-    final notificationsPlugin = locator<FlutterLocalNotificationsPlugin>();
+    await AndroidAlarmService.init();
     final db = locator<DbService>();
     await db.createDatabase();
     await NotificationService.instance.init();

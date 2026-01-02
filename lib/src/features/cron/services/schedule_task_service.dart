@@ -5,10 +5,8 @@ import '../../../services/init_services.dart';
 import '../models/scheduled_task.dart';
 
 class ScheduledTaskService {
-  static Database db = locator<DbService>().db;
-
   static Future<int> createTask(ScheduledTask task) async {
-    var id = await db.insert(
+    var id = await locator<DbService>().db.insert(
       'cron',
       task.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -17,7 +15,7 @@ class ScheduledTaskService {
   }
 
   static Future<List<ScheduledTask>> getAllTasks() async {
-    final List<Map<String, dynamic>> result = await db.query(
+    final List<Map<String, dynamic>> result = await locator<DbService>().db.query(
       'cron',
       orderBy: 'id',
     );
@@ -26,7 +24,7 @@ class ScheduledTaskService {
   }
 
   static Future<ScheduledTask?> getTaskById(String id) async {
-    final List<Map<String, dynamic>> result = await db.query(
+    final List<Map<String, dynamic>> result = await locator<DbService>().db.query(
       'cron',
       where: 'id = ?',
       whereArgs: [id],
@@ -38,7 +36,7 @@ class ScheduledTaskService {
   }
 
   static Future<int> updateTaskById(ScheduledTask task) async {
-    return await db.update(
+    return await locator<DbService>().db.update(
       'cron',
       task.toMap(),
       where: 'id = ?',
@@ -48,6 +46,6 @@ class ScheduledTaskService {
 
   static Future<int> deleteTaskById(String id) async {
     print(id);
-    return await db.delete('cron', where: 'id = ?', whereArgs: [id]);
+    return await locator<DbService>().db.delete('cron', where: 'id = ?', whereArgs: [id]);
   }
 }

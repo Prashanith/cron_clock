@@ -8,6 +8,7 @@ class AlarmEngine {
 
   static final AlarmEngine instance = AlarmEngine._private();
 
+  @pragma('vm:entry-point')
   Future<void> rescheduleNextForId(int id) async {
     final scheduledTask = await ScheduledTaskService.getTaskById(id.toString());
     if (scheduledTask != null) {
@@ -20,6 +21,7 @@ class AlarmEngine {
   }
 }
 
+@pragma('vm:entry-point')
 void alarmCallback(int id) async {
   print('Rescheduling');
   await AlarmEngine.instance.rescheduleNextForId(id);
