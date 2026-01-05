@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../../services/init_services.dart';
+import '../../services/notification_service.dart';
 import '../../utils/cron_summary.dart';
-import 'models/scheduled_task.dart';
-import 'services/schedule_task_service.dart';
 
-class ScheduledTasks extends StatefulWidget {
-  const ScheduledTasks({super.key});
+class ScheduledNotifications extends StatefulWidget {
+  const ScheduledNotifications({super.key});
 
   @override
-  State<ScheduledTasks> createState() => _ScheduledTasksState();
+  State<ScheduledNotifications> createState() => _ScheduledTasksState();
 }
 
-class _ScheduledTasksState extends State<ScheduledTasks> {
-  late List<ScheduledTask> scheduledTasks = [];
-  Future<List<ScheduledTask>> _future = Future.delayed(
+class _ScheduledTasksState extends State<ScheduledNotifications> {
+  late List<PendingNotificationRequest> scheduledTasks = [];
+  Future<List<PendingNotificationRequest>> _future = Future.delayed(
     Duration(seconds: 0),
     () => [],
   );
@@ -29,8 +30,8 @@ class _ScheduledTasksState extends State<ScheduledTasks> {
     return '';
   }
 
-  Future<List<ScheduledTask>> fetchData() async {
-    var list = await ScheduledTaskService.getAllTasks();
+  Future<List<PendingNotificationRequest>> fetchData() async {
+    var list = await locator<NotificationService>().getAll();
     return list;
   }
 
@@ -48,7 +49,7 @@ class _ScheduledTasksState extends State<ScheduledTasks> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ScheduledTask>>(
+    return FutureBuilder<List<PendingNotificationRequest>>(
       future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -63,30 +64,23 @@ class _ScheduledTasksState extends State<ScheduledTasks> {
           return const Center(child: Text('No scheduled tasks'));
         }
 
-        final tasks = snapshot.data!;
+        final notifications = snapshot.data!;
 
         return ListView.builder(
-          itemCount: tasks.length,
+          itemCount: notifications.length,
           itemBuilder: (context, index) {
-            final task = tasks[index];
-            return ExpansionTile(
-              title: Text(task.title),
-              subtitle: Text(task.description),
+            final task = notifications[index];
+            return ListTile(
+              title: Text(task.title ?? ''),
+              subtitle: Text(task.body ?? ''),
               trailing: IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () async {
-                  var data = await ScheduledTaskService.deleteTaskById(task.id);
-                  if (data == 1) {
-                    setState(() {
-                      _future = fetchData();
-                    });
-                  }
-                },
+                onPressed: () => locator<NotificationService>().show(
+                  id: 1,
+                  title: 'dd',
+                  body: 'dd',
+                ),
+                icon: Icon(Icons.arrow_forward_ios),
               ),
-              children: [
-                Text(task.cron),
-                Text(getText(describeCron(task.cron))),
-              ],
             );
           },
         );

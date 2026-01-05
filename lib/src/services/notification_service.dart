@@ -5,6 +5,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'init_services.dart';
 
 class NotificationService {
+  NotificationService();
   NotificationService._();
 
   static final NotificationService instance = NotificationService._();
@@ -63,6 +64,10 @@ class NotificationService {
 
   Future<void> cancel(int id) async {
     await _plugin.cancel(id);
+  }
+
+  Future<List<PendingNotificationRequest>> getAll() async {
+    return _plugin.pendingNotificationRequests();
   }
 
   Future<void> cancelAll() async {

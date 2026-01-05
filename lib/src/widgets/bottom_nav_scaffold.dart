@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-
 import '../features/cron/create_schedule.dart';
+import '../features/cron/scheduled_notifications.dart';
 import '../features/cron/scheduled_tasks.dart';
 import 'logo.dart';
 
@@ -20,6 +20,8 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
         return CreateSchedule();
       case 1:
         return ScheduledTasks();
+      case 2:
+        return ScheduledNotifications();
       default:
         return Center();
     }
@@ -32,7 +34,7 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
       case 1:
         return 'Scheduled Tasks';
       case 2:
-        return 'About';
+        return 'Notifications';
       default:
         return '';
     }
@@ -72,6 +74,10 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
               const BottomNavigationBarItem(
                 icon: Icon(Icons.list),
                 label: 'Schedules',
+              ),
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.notifications_sharp),
+                label: 'Notifications',
               ),
             ],
           ),

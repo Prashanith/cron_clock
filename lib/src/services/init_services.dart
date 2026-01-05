@@ -27,6 +27,7 @@ class ServiceInitializer {
     locator.registerSingleton<FlutterLocalNotificationsPlugin>(
       FlutterLocalNotificationsPlugin(),
     );
+    locator.registerSingleton<NotificationService>(NotificationService());
 
     await postInitializationServices();
   }
