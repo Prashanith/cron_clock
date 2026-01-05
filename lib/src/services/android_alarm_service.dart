@@ -14,6 +14,6 @@ class AndroidAlarmService {
 
   static Future<void> init() async {
     await AndroidAlarmManager.initialize();
-    await _checkExactAlarmPermission();
+ //   await _checkExactAlarmPermission();
   }
 }

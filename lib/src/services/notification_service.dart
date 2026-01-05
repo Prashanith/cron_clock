@@ -52,6 +52,7 @@ class NotificationService {
     required String body,
     required DateTime dateTime,
   }) async {
+    print(tz.TZDateTime.from(dateTime.toLocal(), tz.getLocation('Asia/Kolkata')));
     await _plugin.zonedSchedule(
       id,
       title,

@@ -103,7 +103,7 @@ class _CreateScheduleState extends State<CreateSchedule> {
                       if (_formKey.currentState!.validate()) {
                         showDialog(
                           context: context,
-                          barrierDismissible: false,
+                          barrierDismissible: true,
                           builder: (context) {
                             return AlertDialog(
                               content: SizedBox(
@@ -145,12 +145,16 @@ class _CreateScheduleState extends State<CreateSchedule> {
                             response = 'Schedule Created';
                           });
                           var service = locator<SchedulingService>();
-                          service.scheduleCron(id);
+                          await service.scheduleCron(id);
+                          print('done');
                         } catch (e) {
+                          print(e.toString());
+                          print('Logging');
                           setState(() {
                             response = 'Error Occurred';
                           });
                         } finally {
+                          print('Check State');
                           setState(() {
                             isLoading = false;
                           });

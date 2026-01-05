@@ -10,6 +10,7 @@ class AlarmEngine {
 
   @pragma('vm:entry-point')
   Future<void> rescheduleNextForId(int id) async {
+    await ServiceInitializer.initializeServices();
     final scheduledTask = await ScheduledTaskService.getTaskById(id.toString());
     if (scheduledTask != null) {
       var service = locator<SchedulingService>();
@@ -23,6 +24,7 @@ class AlarmEngine {
 
 @pragma('vm:entry-point')
 void alarmCallback(int id) async {
+  await ServiceInitializer.initializeServices();
   print('Rescheduling');
   await AlarmEngine.instance.rescheduleNextForId(id);
 }

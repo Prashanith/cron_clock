@@ -16,10 +16,12 @@ final locator = GetIt.instance;
 
 class ServiceInitializer {
   static Future<void> initializeServices() async {
+    locator.registerLazySingleton<DbService>(() => DbService());
+    final db = locator<DbService>();
+    await db.createDatabase();
     ReceivePort port = ReceivePort();
     IsolateNameServer.registerPortWithName(port.sendPort, 'isolate');
 
-    locator.registerSingleton<DbService>(DbService());
     locator.registerSingleton<LocalStorage>(LocalStorage());
     locator.registerSingleton<RouteGenerator>(RouteGenerator());
     locator.registerSingleton<PermissionService>(PermissionService());
@@ -28,14 +30,11 @@ class ServiceInitializer {
       FlutterLocalNotificationsPlugin(),
     );
     locator.registerSingleton<NotificationService>(NotificationService());
-
     await postInitializationServices();
   }
 
   static Future<void> postInitializationServices() async {
     await AndroidAlarmService.init();
-    final db = locator<DbService>();
-    await db.createDatabase();
     await NotificationService.instance.init();
   }
 }

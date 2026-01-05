@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 import 'src/navigation/route_generator.dart';
 import 'src/navigation/routes.dart';
 import 'src/services/init_services.dart';
+import 'src/services/permission_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
   await ServiceInitializer.initializeServices();
+  final currentStatus = await locator<PermissionService>().requestPermission(
+    Permission.scheduleExactAlarm,
+  );
+  print('not status');
+  print(currentStatus.isGranted);
   runApp(const CronClock());
 }
 
