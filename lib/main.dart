@@ -14,7 +14,6 @@ void main() async {
   final currentStatus = await locator<PermissionService>().requestPermission(
     Permission.scheduleExactAlarm,
   );
-  print('not status');
   print(currentStatus.isGranted);
   runApp(const CronClock());
 }

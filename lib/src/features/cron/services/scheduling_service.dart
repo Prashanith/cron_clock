@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
-import '../../../services/alarm_engine.dart';
+import '../../../services/android_alarm_service.dart';
 import '../../../services/notification_service.dart';
 import '../../../utils/cron_converter.dart';
 import '../models/scheduled_task.dart';
@@ -18,6 +18,7 @@ class SchedulingService {
   }
 
   Future<void> listen(ScheduledTask scheduledTask, DateTime next) async {
+    print('$next notification and alarm');
     await AndroidAlarmManager.oneShotAt(
       next,
       int.tryParse(scheduledTask.id) ?? 0,
@@ -26,13 +27,11 @@ class SchedulingService {
       exact: true,
       rescheduleOnReboot: true,
     );
-    print('Alarm');
     await NotificationService.instance.schedule(
       id: int.tryParse(scheduledTask.id) ?? 0,
       title: scheduledTask.title,
       body: scheduledTask.description,
       dateTime: next,
     );
-    print('Notification');
   }
 }
