@@ -52,16 +52,18 @@ class NotificationService {
     required String body,
     required DateTime dateTime,
   }) async {
-    print(
-      tz.TZDateTime.from(dateTime.toLocal(), tz.getLocation('Asia/Kolkata')),
+    var time = tz.TZDateTime.from(
+      dateTime.toLocal(),
+      tz.getLocation('Asia/Kolkata'),
     );
+    print(time);
     await _plugin.zonedSchedule(
       id,
       title,
       body,
-      tz.TZDateTime.from(dateTime.toLocal(), tz.getLocation('Asia/Kolkata')),
+      time,
       _notificationDetails(),
-      androidScheduleMode: AndroidScheduleMode.alarmClock,
+      androidScheduleMode: AndroidScheduleMode.exact,
     );
   }
 

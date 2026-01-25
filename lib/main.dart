@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 import 'src/navigation/route_generator.dart';
 import 'src/navigation/routes.dart';
@@ -10,11 +11,18 @@ import 'src/services/permission_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
+  var location = tz.getLocation('Asia/Kolkata');
+  tz.setLocalLocation(location);
   await ServiceInitializer.initializeServices();
   final currentStatus = await locator<PermissionService>().requestPermission(
     Permission.scheduleExactAlarm,
   );
+  final status = await locator<PermissionService>().requestPermission(
+    Permission.notification,
+  );
+
   print(currentStatus.isGranted);
+  print(status.isGranted);
   runApp(const CronClock());
 }
 

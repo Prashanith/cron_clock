@@ -19,9 +19,7 @@ class AndroidAlarmService {
     await AndroidAlarmManager.initialize();
     await _checkExactAlarmPermission();
   }
-
 }
-
 
 @pragma('vm:entry-point')
 Future<void> rescheduleNextForId(int id) async {

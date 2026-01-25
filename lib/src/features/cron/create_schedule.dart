@@ -1,6 +1,9 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import '../../services/init_services.dart';
+import '../../services/notification_service.dart';
 import '../../utils/cron_summary.dart';
 import '../../utils/cron_validators.dart';
 import 'models/scheduled_task.dart';
@@ -44,6 +47,18 @@ class _CreateScheduleState extends State<CreateSchedule> {
         key: _formKey,
         child: ListView(
           children: <Widget>[
+            FilledButton(
+              onPressed: () async =>
+                  await NotificationService.instance.schedule(
+                    id: Random().nextInt(39129083),
+                    title: 'Test It',
+                    body: 'Test It',
+                    dateTime: tz.TZDateTime.now(
+                      tz.getLocation('Asia/Kolkata'),
+                    ).add(const Duration(seconds: 10)),
+                  ),
+              child: Text('Text'),
+            ),
             TextFormField(
               decoration: InputDecoration(
                 labelText: 'title',

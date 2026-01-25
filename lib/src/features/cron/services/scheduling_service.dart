@@ -12,13 +12,14 @@ class SchedulingService {
   Future<void> scheduleCron(int id) async {
     final scheduledTask = await ScheduledTaskService.getTaskById(id.toString());
     if (scheduledTask != null) {
-      final next = CronUtils.computeNextRun(scheduledTask.cron);
-      listen(scheduledTask, next ?? DateTime.now());
+      var next = CronUtils.computeNextRun(scheduledTask.cron) ?? DateTime.now();
+      next = next.toUtc().toLocal();
+      listen(scheduledTask, next);
     }
   }
 
   Future<void> listen(ScheduledTask scheduledTask, DateTime next) async {
-    print('$next notification and alarm');
+    print('Next Schedule $next notification and alarm');
     await AndroidAlarmManager.oneShotAt(
       next,
       int.tryParse(scheduledTask.id) ?? 0,
