@@ -47,7 +47,10 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
         title: Text(getTitle(currentIndex)),
         leading: Transform.scale(scale: 0.7, child: Logo()),
       ),
-      body: getWidget(currentIndex),
+      body: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: getWidget(currentIndex),
+      ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           borderRadius: BorderRadius.only(

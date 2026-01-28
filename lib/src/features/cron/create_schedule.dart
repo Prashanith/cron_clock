@@ -47,18 +47,6 @@ class _CreateScheduleState extends State<CreateSchedule> {
         key: _formKey,
         child: ListView(
           children: <Widget>[
-            FilledButton(
-              onPressed: () async =>
-                  await NotificationService.instance.schedule(
-                    id: Random().nextInt(39129083),
-                    title: 'Test It',
-                    body: 'Test It',
-                    dateTime: tz.TZDateTime.now(
-                      tz.getLocation('Asia/Kolkata'),
-                    ).add(const Duration(seconds: 10)),
-                  ),
-              child: Text('Text'),
-            ),
             TextFormField(
               decoration: InputDecoration(
                 labelText: 'title',
