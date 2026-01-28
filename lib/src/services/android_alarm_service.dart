@@ -36,6 +36,5 @@ Future<void> rescheduleNextForId(int id) async {
 
 @pragma('vm:entry-point')
 void alarmCallback(int id) async {
-  print('Rescheduling');
-  // await AlarmEngine.instance.rescheduleNextForId(id);
+  await rescheduleNextForId(id);
 }

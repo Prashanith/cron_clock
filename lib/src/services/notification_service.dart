@@ -14,14 +14,15 @@ class NotificationService {
       locator<FlutterLocalNotificationsPlugin>();
 
   static const AndroidNotificationChannel _channel = AndroidNotificationChannel(
-    'alarm_channel',
-    'Alarm Notifications',
+    'alarm_channel_v5',
+    'Alarm_Notifications',
     description: 'Notifications for alarms and reminders',
     importance: Importance.max,
     playSound: true,
-    bypassDnd: true,
+    bypassDnd: false,
     enableVibration: true,
     enableLights: true,
+    audioAttributesUsage: AudioAttributesUsage.notification,
   );
 
   Future<void> init() async {
@@ -63,7 +64,8 @@ class NotificationService {
       body,
       time,
       _notificationDetails(),
-      androidScheduleMode: AndroidScheduleMode.exact,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      payload: time.toString(),
     );
   }
 
@@ -87,7 +89,9 @@ class NotificationService {
         channelDescription: _channel.description,
         importance: Importance.max,
         priority: Priority.high,
-        icon: '@mipmap/ic_launcher',
+        playSound: true,
+        fullScreenIntent: true,
+        audioAttributesUsage: AudioAttributesUsage.notification,
       ),
     );
   }
