@@ -13,7 +13,8 @@ class DbService {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT,
             description TEXT,
-            cron TEXT          
+            cron TEXT,
+            lastScheduledAt DATETIME        
           )
           ''');
       },

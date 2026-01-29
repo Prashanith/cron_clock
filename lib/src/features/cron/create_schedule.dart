@@ -4,6 +4,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../../services/init_services.dart';
 import '../../services/notification_service.dart';
+import '../../utils/cron_converter.dart';
 import '../../utils/cron_summary.dart';
 import '../../utils/cron_validators.dart';
 import 'models/scheduled_task.dart';
@@ -138,10 +139,14 @@ class _CreateScheduleState extends State<CreateSchedule> {
                           setState(() {
                             isLoading = true;
                           });
+                          var lastScheduledAt = CronUtils.computeNextRun(
+                            cronController.text,
+                          );
                           var task = ScheduledTask(
                             title: titleController.text,
                             description: descriptionController.text,
                             cron: cronController.text,
+                            lastScheduledAt: lastScheduledAt,
                           );
                           var id = await ScheduledTaskService.createTask(task);
                           setState(() {

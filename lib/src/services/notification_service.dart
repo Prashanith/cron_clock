@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
@@ -59,7 +61,7 @@ class NotificationService {
     );
     print(time);
     await _plugin.zonedSchedule(
-      id,
+      Random().nextInt(100000),
       title,
       body,
       time,

@@ -3,11 +3,13 @@ class ScheduledTask {
   final String title;
   final String description;
   final String cron;
+  DateTime? lastScheduledAt;
 
   ScheduledTask({
     required this.title,
     required this.description,
     required this.cron,
+    required this.lastScheduledAt,
   });
 
   factory ScheduledTask.fromMap(Map<String, dynamic> data) {
@@ -16,6 +18,7 @@ class ScheduledTask {
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       cron: data['cron'] ?? '',
+      lastScheduledAt: DateTime.tryParse(data['cron'] ?? ''),
     );
     task.id = id;
     return task;

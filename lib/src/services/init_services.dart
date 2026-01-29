@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../features/cron/services/scheduling_service.dart';
 import '../navigation/route_generator.dart';
@@ -15,7 +16,10 @@ import 'permission_service.dart';
 final locator = GetIt.instance;
 
 class ServiceInitializer {
-  static Future<void> initializeServices() async {
+  static Future<void> initializeServices({
+    bool skipPostInitialization = false,
+  }) async {
+    locator.allowReassignment = true;
     locator.registerLazySingleton<DbService>(() => DbService());
     final db = locator<DbService>();
     await db.createDatabase();
@@ -30,10 +34,19 @@ class ServiceInitializer {
       FlutterLocalNotificationsPlugin(),
     );
     locator.registerSingleton<NotificationService>(NotificationService());
-    await postInitializationServices();
+    if (!skipPostInitialization) {
+      await postInitializationServices();
+    }
   }
 
   static Future<void> postInitializationServices() async {
+    final currentStatus = await locator<PermissionService>().requestPermission(
+      Permission.scheduleExactAlarm,
+    );
+    final status = await locator<PermissionService>().requestPermission(
+      Permission.notification,
+    );
+
     await AndroidAlarmService.init();
     await NotificationService.instance.init();
   }

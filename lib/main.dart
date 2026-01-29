@@ -14,15 +14,6 @@ void main() async {
   var location = tz.getLocation('Asia/Kolkata');
   tz.setLocalLocation(location);
   await ServiceInitializer.initializeServices();
-  final currentStatus = await locator<PermissionService>().requestPermission(
-    Permission.scheduleExactAlarm,
-  );
-  final status = await locator<PermissionService>().requestPermission(
-    Permission.notification,
-  );
-
-  print(currentStatus.isGranted);
-  print(status.isGranted);
   runApp(const CronClock());
 }
 

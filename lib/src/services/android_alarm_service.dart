@@ -1,40 +1,42 @@
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
-import 'package:permission_handler/permission_handler.dart';
-
+import 'package:flutter/cupertino.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import '../features/cron/services/schedule_task_service.dart';
 import '../features/cron/services/scheduling_service.dart';
 import '../utils/cron_converter.dart';
 import 'init_services.dart';
-import 'permission_service.dart';
 
 class AndroidAlarmService {
-  static Future<bool> _checkExactAlarmPermission() async {
-    final currentStatus = await locator<PermissionService>().requestPermission(
-      Permission.scheduleExactAlarm,
-    );
-    return currentStatus.isGranted;
-  }
-
   static Future<void> init() async {
     await AndroidAlarmManager.initialize();
-    await _checkExactAlarmPermission();
   }
 }
 
 @pragma('vm:entry-point')
 Future<void> rescheduleNextForId(int id) async {
-  await ServiceInitializer.initializeServices();
+  print('Rescheduling');
   final scheduledTask = await ScheduledTaskService.getTaskById(id.toString());
   if (scheduledTask != null) {
-    var service = locator<SchedulingService>();
-    final next = CronUtils.computeNextRun(scheduledTask.cron);
-    if (next != null) {
-      service.listen(scheduledTask, next);
+    if (scheduledTask.lastScheduledAt != null &&
+        scheduledTask.lastScheduledAt!.isBefore(DateTime.now())) {
+      var service = locator<SchedulingService>();
+      final next = CronUtils.computeNextRun(scheduledTask.cron);
+      scheduledTask.lastScheduledAt = next;
+      await ScheduledTaskService.updateTaskById(scheduledTask);
+      if (next != null) {
+        service.listen(scheduledTask, next);
+      }
     }
   }
 }
 
 @pragma('vm:entry-point')
 void alarmCallback(int id) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
+  var location = tz.getLocation('Asia/Kolkata');
+  tz.setLocalLocation(location);
+  await ServiceInitializer.initializeServices(skipPostInitialization: true);
   await rescheduleNextForId(id);
 }

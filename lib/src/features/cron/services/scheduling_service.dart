@@ -12,9 +12,19 @@ class SchedulingService {
   Future<void> scheduleCron(int id) async {
     final scheduledTask = await ScheduledTaskService.getTaskById(id.toString());
     if (scheduledTask != null) {
-      var next = CronUtils.computeNextRun(scheduledTask.cron) ?? DateTime.now();
+      var next = DateTime.now();
+      if (scheduledTask.lastScheduledAt == null) {
+        next =
+            scheduledTask.lastScheduledAt ??
+            CronUtils.computeNextRun(scheduledTask.cron) ??
+            DateTime.now();
+        scheduledTask.lastScheduledAt = next;
+        await ScheduledTaskService.updateTaskById(scheduledTask);
+      } else {
+        next = scheduledTask.lastScheduledAt ?? DateTime.now();
+      }
       next = next.toUtc().toLocal();
-      listen(scheduledTask, next);
+      await listen(scheduledTask, next);
     }
   }
 
