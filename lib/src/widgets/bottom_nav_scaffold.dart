@@ -17,11 +17,11 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
   Widget getWidget(int i) {
     switch (i) {
       case 0:
-        return CreateSchedule();
-      case 1:
         return ScheduledTasks();
+      case 1:
+        return CreateSchedule();
       case 2:
-        return ScheduledNotifications();
+        return UpcomingSchedules();
       default:
         return Center();
     }
@@ -30,11 +30,11 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
   String getTitle(int i) {
     switch (i) {
       case 0:
-        return 'Cron Clock';
-      case 1:
         return 'Scheduled Tasks';
+      case 1:
+        return 'Cron Clock';
       case 2:
-        return 'Notifications';
+        return 'Upcoming Schedules';
       default:
         return '';
     }
@@ -48,7 +48,7 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
         leading: Transform.scale(scale: 0.7, child: Logo()),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12.0),
         child: getWidget(currentIndex),
       ),
       bottomNavigationBar: Container(
@@ -71,16 +71,16 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
             }),
             items: [
               const BottomNavigationBarItem(
-                icon: Icon(Icons.timelapse_sharp),
-                label: 'Clock',
-              ),
-              const BottomNavigationBarItem(
                 icon: Icon(Icons.list),
                 label: 'Schedules',
               ),
               const BottomNavigationBarItem(
+                icon: Icon(Icons.timelapse_sharp),
+                label: 'Clock',
+              ),
+              const BottomNavigationBarItem(
                 icon: Icon(Icons.notifications_sharp),
-                label: 'Notifications',
+                label: 'Upcoming',
               ),
             ],
           ),

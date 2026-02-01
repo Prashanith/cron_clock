@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../utils/cron_summary.dart';
 import 'models/scheduled_task.dart';
 import 'services/schedule_task_service.dart';
@@ -70,10 +71,24 @@ class _ScheduledTasksState extends State<ScheduledTasks> {
           itemBuilder: (context, index) {
             final task = tasks[index];
             return ExpansionTile(
-              title: Text(task.title),
-              subtitle: Text(task.description),
+              dense: true,
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: Text(
+                task.title,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+              subtitle: Text(
+                task.description,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               trailing: IconButton(
-                icon: const Icon(Icons.delete),
+                icon: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.redAccent,
+                  size: 20,
+                ),
                 onPressed: () async {
                   var data = await ScheduledTaskService.deleteTaskById(task.id);
                   if (data == 1) {
@@ -83,9 +98,53 @@ class _ScheduledTasksState extends State<ScheduledTasks> {
                   }
                 },
               ),
+              // 4. Content Layout: Added padding and structure
+              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              expandedCrossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(task.cron),
-                Text(getText(describeCron(task.cron))),
+                const Divider(height: 1),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Schedule: ${task.cron}',
+                          style: TextStyle(fontSize: 13),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          getText(describeCron(task.cron)),
+                          style: const TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          DateFormat('MMM dd').format(
+                            task.lastScheduledAt ?? DateTime.now(),
+                          ), // Jan 17 Time
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          DateFormat('hh:mm a').format(
+                            task.lastScheduledAt ?? DateTime.now(),
+                          ), // Jan 17 Time
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ],
             );
           },

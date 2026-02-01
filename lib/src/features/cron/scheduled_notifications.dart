@@ -3,15 +3,16 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../services/init_services.dart';
 import '../../services/notification_service.dart';
 import '../../utils/cron_summary.dart';
+import 'package:intl/intl.dart';
 
-class ScheduledNotifications extends StatefulWidget {
-  const ScheduledNotifications({super.key});
+class UpcomingSchedules extends StatefulWidget {
+  const UpcomingSchedules({super.key});
 
   @override
-  State<ScheduledNotifications> createState() => _ScheduledTasksState();
+  State<UpcomingSchedules> createState() => _UpcomingSchedulesState();
 }
 
-class _ScheduledTasksState extends State<ScheduledNotifications> {
+class _UpcomingSchedulesState extends State<UpcomingSchedules> {
   late List<PendingNotificationRequest> scheduledTasks = [];
   Future<List<PendingNotificationRequest>> _future = Future.delayed(
     Duration(seconds: 0),
@@ -73,13 +74,10 @@ class _ScheduledTasksState extends State<ScheduledNotifications> {
             return ListTile(
               title: Text(task.title ?? ''),
               subtitle: Text(task.body ?? ''),
-              trailing: IconButton(
-                onPressed: () => locator<NotificationService>().show(
-                  id: 1,
-                  title: 'dd',
-                  body: 'dd',
-                ),
-                icon: Icon(Icons.arrow_forward_ios),
+              trailing: Text(
+                DateFormat(
+                  'MMM dd hh:mm a',
+                ).format(DateTime.parse(task.payload ?? '')),
               ),
             );
           },

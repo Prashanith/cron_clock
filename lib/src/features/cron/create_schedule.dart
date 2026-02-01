@@ -1,9 +1,5 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 import '../../services/init_services.dart';
-import '../../services/notification_service.dart';
 import '../../utils/cron_converter.dart';
 import '../../utils/cron_summary.dart';
 import '../../utils/cron_validators.dart';
@@ -49,7 +45,9 @@ class _CreateScheduleState extends State<CreateSchedule> {
         child: ListView(
           children: <Widget>[
             TextFormField(
+              validator: (v) => !v!.isNotEmpty ? 'Required' : null,
               decoration: InputDecoration(
+                isDense: true,
                 labelText: 'title',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -60,6 +58,7 @@ class _CreateScheduleState extends State<CreateSchedule> {
             SizedBox(height: 20),
             TextFormField(
               decoration: InputDecoration(
+                isDense: true,
                 labelText: 'description',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -70,6 +69,7 @@ class _CreateScheduleState extends State<CreateSchedule> {
             SizedBox(height: 20),
             TextFormField(
               decoration: InputDecoration(
+                isDense: true,
                 labelText: 'cron',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -96,7 +96,7 @@ class _CreateScheduleState extends State<CreateSchedule> {
                         });
                       }
                     },
-                    child: Text('Create Summary'),
+                    child: Text('Summarize'),
                   ),
                 ),
                 Spacer(flex: 1),
@@ -104,72 +104,86 @@ class _CreateScheduleState extends State<CreateSchedule> {
                   flex: 10,
                   child: FilledButton(
                     onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          barrierDismissible: true,
-                          builder: (context) {
-                            return AlertDialog(
-                              content: SizedBox(
-                                width: MediaQuery.widthOf(context) * 0.9,
-                                height: MediaQuery.heightOf(context) * 0.33,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    if (isLoading) CircularProgressIndicator(),
-                                    if (response != '') Text(response),
-                                  ],
-                                ),
+                      if (!_formKey.currentState!.validate()) return;
+
+                      final ValueNotifier<bool> loadingNotifier =
+                          ValueNotifier<bool>(true);
+                      final ValueNotifier<String> responseNotifier =
+                          ValueNotifier<String>('');
+
+                      showDialog(
+                        context: context,
+                        barrierDismissible:
+                            false,
+                        builder: (context) {
+                          return AlertDialog(
+                            content: SizedBox(
+                              width: MediaQuery.sizeOf(context).width * 0.9,
+                              height: MediaQuery.sizeOf(context).height * 0.33,
+                              child: ValueListenableBuilder(
+                                valueListenable: loadingNotifier,
+                                builder: (context, isLoading, _) {
+                                  return ValueListenableBuilder(
+                                    valueListenable: responseNotifier,
+                                    builder: (context, responseMsg, _) {
+                                      return Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          if (isLoading)
+                                            const CircularProgressIndicator(),
+                                          if (responseMsg.isNotEmpty)
+                                            Text(responseMsg),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
                               ),
-                              actions: [
-                                if (!isLoading)
-                                  FilledButton(
-                                    onPressed: () => Navigator.of(
-                                      context,
-                                      rootNavigator: true,
-                                    ).pop(),
-                                    child: Text('OK'),
-                                  ),
-                              ],
-                            );
-                          },
+                            ),
+                            actions: [
+                              ValueListenableBuilder(
+                                valueListenable: loadingNotifier,
+                                builder: (context, isLoading, _) {
+                                  return isLoading
+                                      ? const SizedBox.shrink()
+                                      : FilledButton(
+                                          onPressed: () => Navigator.of(
+                                            context,
+                                            rootNavigator: true,
+                                          ).pop(),
+                                          child: const Text('OK'),
+                                        );
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+
+                      try {
+                        var lastScheduledAt = CronUtils.computeNextRun(
+                          cronController.text,
                         );
-                        try {
-                          setState(() {
-                            isLoading = true;
-                          });
-                          var lastScheduledAt = CronUtils.computeNextRun(
-                            cronController.text,
-                          );
-                          var task = ScheduledTask(
-                            title: titleController.text,
-                            description: descriptionController.text,
-                            cron: cronController.text,
-                            lastScheduledAt: lastScheduledAt,
-                          );
-                          var id = await ScheduledTaskService.createTask(task);
-                          setState(() {
-                            response = 'Schedule Created';
-                          });
-                          var service = locator<SchedulingService>();
-                          await service.scheduleCron(id);
-                          print('done');
-                        } catch (e) {
-                          print(e.toString());
-                          print('Logging');
-                          setState(() {
-                            response = 'Error Occurred';
-                          });
-                        } finally {
-                          print('Check State');
-                          setState(() {
-                            isLoading = false;
-                          });
-                        }
+                        var task = ScheduledTask(
+                          title: titleController.text,
+                          description: descriptionController.text,
+                          cron: cronController.text,
+                          lastScheduledAt: lastScheduledAt,
+                        );
+
+                        var id = await ScheduledTaskService.createTask(task);
+                        var service = locator<SchedulingService>();
+                        await service.scheduleCron(id);
+
+                        responseNotifier.value = 'Schedule Created';
+                      } catch (e) {
+                        responseNotifier.value = 'Error Occurred';
+                      } finally {
+                        loadingNotifier.value = false;
                       }
                     },
-                    child: Text('Create Schedule'),
+                    child: Text('Schedule'),
                   ),
                 ),
               ],
