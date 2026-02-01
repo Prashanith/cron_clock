@@ -19,7 +19,6 @@ class ServiceInitializer {
   static Future<void> initializeServices({
     bool skipPostInitialization = false,
   }) async {
-    locator.allowReassignment = true;
     locator.registerLazySingleton<DbService>(() => DbService());
     final db = locator<DbService>();
     await db.createDatabase();

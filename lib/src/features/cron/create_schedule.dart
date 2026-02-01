@@ -105,21 +105,19 @@ class _CreateScheduleState extends State<CreateSchedule> {
                   child: FilledButton(
                     onPressed: () async {
                       if (!_formKey.currentState!.validate()) return;
-
+                      _formKey.currentState?.deactivate();
                       final ValueNotifier<bool> loadingNotifier =
                           ValueNotifier<bool>(true);
                       final ValueNotifier<String> responseNotifier =
                           ValueNotifier<String>('');
-
                       showDialog(
                         context: context,
-                        barrierDismissible:
-                            false,
+                        barrierDismissible: false,
                         builder: (context) {
                           return AlertDialog(
                             content: SizedBox(
-                              width: MediaQuery.sizeOf(context).width * 0.9,
-                              height: MediaQuery.sizeOf(context).height * 0.33,
+                              width: 200,
+                              height: 100,
                               child: ValueListenableBuilder(
                                 valueListenable: loadingNotifier,
                                 builder: (context, isLoading, _) {
@@ -175,11 +173,12 @@ class _CreateScheduleState extends State<CreateSchedule> {
                         var id = await ScheduledTaskService.createTask(task);
                         var service = locator<SchedulingService>();
                         await service.scheduleCron(id);
-
                         responseNotifier.value = 'Schedule Created';
+                        _formKey.currentState?.reset();
                       } catch (e) {
                         responseNotifier.value = 'Error Occurred';
                       } finally {
+                        _formKey.currentState?.activate();
                         loadingNotifier.value = false;
                       }
                     },

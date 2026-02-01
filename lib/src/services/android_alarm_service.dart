@@ -5,6 +5,7 @@ import 'package:timezone/timezone.dart' as tz;
 import '../features/cron/services/schedule_task_service.dart';
 import '../features/cron/services/scheduling_service.dart';
 import '../utils/cron_converter.dart';
+import 'db_service.dart';
 import 'init_services.dart';
 
 class AndroidAlarmService {
@@ -37,6 +38,8 @@ void alarmCallback(int id) async {
   tz.initializeTimeZones();
   var location = tz.getLocation('Asia/Kolkata');
   tz.setLocalLocation(location);
-  await ServiceInitializer.initializeServices(skipPostInitialization: true);
+  if (!locator.isRegistered<DbService>()) {
+    await ServiceInitializer.initializeServices(skipPostInitialization: true);
+  }
   await rescheduleNextForId(id);
 }
