@@ -34,6 +34,7 @@ Future<void> rescheduleNextForId(int id) async {
 
 @pragma('vm:entry-point')
 void alarmCallback(int id) async {
+  print('callbacks');
   WidgetsFlutterBinding.ensureInitialized();
   tz.initializeTimeZones();
   var location = tz.getLocation('Asia/Kolkata');
