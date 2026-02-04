@@ -3,6 +3,7 @@ import '../../services/init_services.dart';
 import '../../utils/cron_converter.dart';
 import '../../utils/cron_summary.dart';
 import '../../utils/cron_validators.dart';
+import '../../widgets/snack_bar.dart';
 import 'models/scheduled_task.dart';
 import 'services/schedule_task_service.dart';
 import 'services/scheduling_service.dart';
@@ -17,8 +18,7 @@ class CreateSchedule extends StatefulWidget {
 class _CreateScheduleState extends State<CreateSchedule> {
   final _formKey = GlobalKey<FormState>();
   CronDescriptionResult? cronInfo;
-  bool isLoading = false;
-  String response = '';
+  final ValueNotifier<bool> loadingNotifier = ValueNotifier<bool>(false);
 
   final cronController = TextEditingController();
   final titleController = TextEditingController();
@@ -39,11 +39,13 @@ class _CreateScheduleState extends State<CreateSchedule> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: EdgeInsets.all(30),
       child: Form(
         key: _formKey,
         child: ListView(
           children: <Widget>[
+            Text('Create Schedule', style: TextStyle(fontSize: 30)),
+            SizedBox(height: 20),
             TextFormField(
               validator: (v) => !v!.isNotEmpty ? 'Required' : null,
               decoration: InputDecoration(
@@ -104,65 +106,14 @@ class _CreateScheduleState extends State<CreateSchedule> {
                   flex: 10,
                   child: FilledButton(
                     onPressed: () async {
+                      loadingNotifier.value = true;
                       if (!_formKey.currentState!.validate()) return;
                       _formKey.currentState?.deactivate();
-                      final ValueNotifier<bool> loadingNotifier =
-                          ValueNotifier<bool>(true);
-                      final ValueNotifier<String> responseNotifier =
-                          ValueNotifier<String>('');
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder: (context) {
-                          return AlertDialog(
-                            content: SizedBox(
-                              width: 200,
-                              height: 100,
-                              child: ValueListenableBuilder(
-                                valueListenable: loadingNotifier,
-                                builder: (context, isLoading, _) {
-                                  return ValueListenableBuilder(
-                                    valueListenable: responseNotifier,
-                                    builder: (context, responseMsg, _) {
-                                      return Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          if (isLoading)
-                                            const CircularProgressIndicator(),
-                                          if (responseMsg.isNotEmpty)
-                                            Text(responseMsg),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                            actions: [
-                              ValueListenableBuilder(
-                                valueListenable: loadingNotifier,
-                                builder: (context, isLoading, _) {
-                                  return isLoading
-                                      ? const SizedBox.shrink()
-                                      : FilledButton(
-                                          onPressed: () => Navigator.of(
-                                            context,
-                                            rootNavigator: true,
-                                          ).pop(),
-                                          child: const Text('OK'),
-                                        );
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-
                       try {
                         var lastScheduledAt = CronUtils.computeNextRun(
                           cronController.text,
                         );
+
                         var task = ScheduledTask(
                           title: titleController.text,
                           description: descriptionController.text,
@@ -173,10 +124,16 @@ class _CreateScheduleState extends State<CreateSchedule> {
                         var id = await ScheduledTaskService.createTask(task);
                         var service = locator<SchedulingService>();
                         await service.scheduleCron(id);
-                        responseNotifier.value = 'Schedule Created';
+
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(getSnackBar('Schedule Created'));
                         _formKey.currentState?.reset();
+                        Navigator.pop(context);
                       } catch (e) {
-                        responseNotifier.value = 'Error Occurred';
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(getSnackBar('Error Creating Schedule'));
                       } finally {
                         _formKey.currentState?.activate();
                         loadingNotifier.value = false;
@@ -186,6 +143,23 @@ class _CreateScheduleState extends State<CreateSchedule> {
                   ),
                 ),
               ],
+            ),
+            SizedBox(height: 15),
+            ValueListenableBuilder(
+              valueListenable: loadingNotifier,
+              builder: (context, isLoading, _) {
+                return ValueListenableBuilder(
+                  valueListenable: loadingNotifier,
+                  builder: (context, responseMsg, _) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (isLoading) const CircularProgressIndicator(),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),

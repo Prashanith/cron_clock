@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import '../../widgets/bottom_nav_scaffold.dart';
+import '../bottom_nav_scaffold.dart';
 
 class CronClock extends StatefulWidget {
   const CronClock({super.key});
