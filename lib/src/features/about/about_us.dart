@@ -42,13 +42,13 @@ class AboutUs extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.email),
             title: const Text('Contact'),
-            subtitle: const Text('prashanith007@example.com'),
+            subtitle: const Text('prashanith007@gmail.com'),
           ),
 
           ListTile(
             leading: const Icon(Icons.language),
             title: const Text('Website'),
-            subtitle: const Text('www.nullinfinity1010.com'),
+            subtitle: const Text('www.nullinfinity1010.web.app'),
           ),
 
           const SizedBox(height: 24),

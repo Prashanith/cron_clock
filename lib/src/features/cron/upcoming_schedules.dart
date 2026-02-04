@@ -77,7 +77,7 @@ class _UpcomingSchedulesState extends State<UpcomingSchedules> {
               trailing: Text(
                 DateFormat(
                   'MMM dd hh:mm a',
-                ).format(DateTime.parse(task.payload ?? '')),
+                ).format(DateTime.parse(task.payload ?? '').toLocal()),
               ),
             );
           },

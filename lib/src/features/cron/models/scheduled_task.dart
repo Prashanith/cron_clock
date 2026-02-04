@@ -18,13 +18,18 @@ class ScheduledTask {
       title: data['title'] ?? '',
       description: data['description'] ?? '',
       cron: data['cron'] ?? '',
-      lastScheduledAt: DateTime.tryParse(data['cron'] ?? ''),
+      lastScheduledAt: DateTime.tryParse(data['lastScheduledAt'] ?? ''),
     );
     task.id = id;
     return task;
   }
 
   Map<String, dynamic> toMap() {
-    return {'title': title, 'description': description, 'cron': cron};
+    return {
+      'title': title,
+      'description': description,
+      'cron': cron,
+      'lastScheduledAt': lastScheduledAt?.toIso8601String(),
+    };
   }
 }

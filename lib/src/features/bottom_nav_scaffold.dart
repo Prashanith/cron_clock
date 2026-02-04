@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'about/about_us.dart';
 import 'cron/create_schedule.dart';
-import 'cron/scheduled_notifications.dart';
+import 'cron/upcoming_schedules.dart';
 import 'cron/scheduled_tasks.dart';
 import '../widgets/logo.dart';
 

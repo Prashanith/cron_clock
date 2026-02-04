@@ -19,13 +19,18 @@ Future<void> rescheduleNextForId(int id) async {
   print('Rescheduling');
   final scheduledTask = await ScheduledTaskService.getTaskById(id.toString());
   if (scheduledTask != null) {
+    print('Scheduled');
+    print(scheduledTask.lastScheduledAt);
+    print(DateTime.now());
     if (scheduledTask.lastScheduledAt != null &&
         scheduledTask.lastScheduledAt!.isBefore(DateTime.now())) {
+      print('Before');
       var service = locator<SchedulingService>();
       final next = CronUtils.computeNextRun(scheduledTask.cron);
       scheduledTask.lastScheduledAt = next;
       await ScheduledTaskService.updateTaskById(scheduledTask);
       if (next != null) {
+        print('Listening');
         service.listen(scheduledTask, next);
       }
     }
