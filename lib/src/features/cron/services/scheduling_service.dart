@@ -29,7 +29,6 @@ class SchedulingService {
   }
 
   Future<void> listen(ScheduledTask scheduledTask, DateTime next) async {
-    print('Next Schedule $next notification and alarm');
     await AndroidAlarmManager.oneShotAt(
       next,
       int.tryParse(scheduledTask.id) ?? 0,

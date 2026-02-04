@@ -39,7 +39,6 @@ class ScheduledTaskService {
   }
 
   static Future<int> deleteTaskById(String id) async {
-    print(id);
     return await locator<DbService>().db.delete(
       'cron',
       where: 'id = ?',

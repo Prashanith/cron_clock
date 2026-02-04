@@ -59,7 +59,6 @@ class NotificationService {
       dateTime.toLocal(),
       tz.getLocation('Asia/Kolkata'),
     );
-    print(time);
     await _plugin.zonedSchedule(
       Random().nextInt(100000),
       title,

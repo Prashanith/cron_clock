@@ -113,7 +113,6 @@ class _CreateScheduleState extends State<CreateSchedule> {
                         var lastScheduledAt = CronUtils.computeNextRun(
                           cronController.text,
                         );
-                        print('Scheduling ${lastScheduledAt.toString()}');
                         var task = ScheduledTask(
                           title: titleController.text,
                           description: descriptionController.text,
