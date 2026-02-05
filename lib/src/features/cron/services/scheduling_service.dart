@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 
@@ -38,7 +39,7 @@ class SchedulingService {
       rescheduleOnReboot: true,
     );
     await NotificationService.instance.schedule(
-      id: int.tryParse(scheduledTask.id) ?? 0,
+      id: Random().nextInt(1000000) + (int.tryParse(scheduledTask.id) ?? 0),
       title: scheduledTask.title,
       body: scheduledTask.description,
       dateTime: next,
