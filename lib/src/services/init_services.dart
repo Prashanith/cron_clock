@@ -22,8 +22,6 @@ class ServiceInitializer {
     locator.registerLazySingleton<DbService>(() => DbService());
     final db = locator<DbService>();
     await db.createDatabase();
-    ReceivePort port = ReceivePort();
-    IsolateNameServer.registerPortWithName(port.sendPort, 'isolate');
 
     locator.registerSingleton<LocalStorage>(LocalStorage());
     locator.registerSingleton<RouteGenerator>(RouteGenerator());
@@ -34,6 +32,8 @@ class ServiceInitializer {
     );
     locator.registerSingleton<NotificationService>(NotificationService());
     if (!skipPostInitialization) {
+      ReceivePort port = ReceivePort();
+      IsolateNameServer.registerPortWithName(port.sendPort, 'isolate');
       await postInitializationServices();
     }
   }
