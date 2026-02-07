@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:nativewrappers/_internal/vm/lib/typed_data_patch.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -60,7 +61,7 @@ class NotificationService {
       tz.getLocation('Asia/Kolkata'),
     );
     await _plugin.zonedSchedule(
-      Random().nextInt(100000),
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
       title,
       body,
       time,
@@ -92,6 +93,7 @@ class NotificationService {
         priority: Priority.high,
         playSound: true,
         fullScreenIntent: true,
+        onlyAlertOnce: false,
         audioAttributesUsage: AudioAttributesUsage.notification,
       ),
     );
