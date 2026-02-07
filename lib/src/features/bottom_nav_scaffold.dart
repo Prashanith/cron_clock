@@ -48,9 +48,11 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
         title: Text(getTitle(currentIndex)),
         leading: Transform.scale(scale: 0.7, child: Logo()),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12.0),
-        child: getWidget(currentIndex),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12.0),
+          child: getWidget(currentIndex),
+        ),
       ),
       floatingActionButton: currentIndex != 0
           ? null
@@ -59,6 +61,10 @@ class _BottomNavScaffoldState extends State<BottomNavScaffold> {
               shape: const CircleBorder(),
               child: Icon(Icons.add),
               onPressed: () => showModalBottomSheet(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
+                ),
+                isScrollControlled: true,
                 context: context,
                 builder: (context) => CreateSchedule(),
               ),
